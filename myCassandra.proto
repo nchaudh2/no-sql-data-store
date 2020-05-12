@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+message GetKeyFromCoordinator {
+    string timeStamp = 1;
+    int32 key = 2;
+    string coordinatorName = 3;
+}
+
+message PutKeyFromCoordinator {
+    string timeStamp = 1;
+    int32 key = 2;
+    string value = 3;
+    string coordinatorName = 4;
+    bool isReadRepair = 5;
+}
+
+message ClientReadRequest {
+    int32 key = 1;
+    ConsistencyLevel consistencyLevel = 2;
+}
+
+message ClientWriteRequest {
+    int32 key = 1;
+    string value = 2;
+    ConsistencyLevel consistencyLevel = 3;
+}
+
+enum ConsistencyLevel {
+    UNKNOWN = 0;
+    ONE = 1;
+    TWO = 2;
+}
+
+enum RequestType {
+    READ = 0;
+    WRITE = 1;
+}
+
+message LogMessage {
+    bool logStartFlag = 1;
+    uint32 key = 2;
+    string value = 3;
+    string timeStamp = 4;
+    bool logEndFlag = 5;
+}
+
+message LogBook {
+    repeated LogMessage log = 1;
+}
+
+message HintedHandOff{
+	string ServerName = 1;
+	repeated WrapperMessage all_wrapper_message = 2;
+}
+
+message HintedHandOffBook{
+	repeated HintedHandOff log = 1;
+}
+
+message AcknowledgementToCoordinator {
+    string coordinatorTimeStamp = 1;
+    int32 key = 2;
+    string value = 3;
+    string replicaName = 4;
+    RequestType request_type = 5;
+    string replicaTimeStamp = 6;
+    string errorMessage = 7;
+}
+
+message AcknowledgementToClient {
+    int32 key = 1;
+    string value = 2;
+    string errorMessage = 3;
+}
+
+message WrapperMessage {
+    oneof map_message {
+        GetKeyFromCoordinator get_key_from_coordinator = 1;
+        PutKeyFromCoordinator put_key_from_coordinator = 2;
+        ClientReadRequest client_read_request = 3;
+        ClientWriteRequest client_write_request = 4;
+        AcknowledgementToCoordinator acknowledgement_to_coordinator = 5;
+        AcknowledgementToClient acknowledgement_to_client = 6;
+    }
+}
+
